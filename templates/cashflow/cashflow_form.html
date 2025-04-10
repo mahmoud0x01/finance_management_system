@@ -1,0 +1,156 @@
+{% extends 'cashflow/base.html' %}
+{% load form_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit CashFlow Entry{% else %}Add CashFlow Entry{% endif %}
+{% endblock %}
+
+{% block content %}
+    <h2>{% if form.instance.pk %}Edit CashFlow Entry{% else %}Add CashFlow Entry{% endif %}</h2>
+    <form method="post" id="cashflowForm">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="{{ form.created_date.id_for_label }}" class="form-label">Date</label>
+            {{ form.created_date|add_class:"form-control" }}
+            {{ form.created_date.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+            {{ form.status|add_class:"form-select" }}
+            {{ form.status.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.type.id_for_label }}" class="form-label">Type*</label>
+            {{ form.type|add_class:"form-select" }}
+            {{ form.type.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.category.id_for_label }}" class="form-label">Category*</label>
+            {{ form.category|add_class:"form-select" }}
+            {{ form.category.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.subcategory.id_for_label }}" class="form-label">Subcategory*</label>
+            {{ form.subcategory|add_class:"form-select" }}
+            {{ form.subcategory.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.amount.id_for_label }}" class="form-label">Amount (руб.)*</label>
+            {{ form.amount|add_class:"form-control" }}
+            {{ form.amount.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.comment.id_for_label }}" class="form-label">Comment</label>
+            {{ form.comment|add_class:"form-control" }}
+            {{ form.comment.errors }}
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'cashflow_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect = document.querySelector('#id_type');
+            const categorySelect = document.querySelector('#id_category');
+            const subcategorySelect = document.querySelector('#id_subcategory');
+
+            function updateCategories() {
+                const typeId = typeSelect.value;
+                if (typeId) {
+                    fetch(`/get_categories/?type_id=${typeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            categorySelect.innerHTML = '<option value="">---------</option>';
+                            data.forEach(category => {
+                                categorySelect.innerHTML += `<option value="${category.id}">${category.name}</option>`;
+                            });
+                            updateSubcategories(); // Update subcategories after updating categories
+                        });
+                } else {
+                    // If no type is selected, show all categories
+                    fetch('/get_all_categories/')
+                        .then(response => response.json())
+                        .then(data => {
+                            categorySelect.innerHTML = '<option value="">---------</option>';
+                            data.forEach(category => {
+                                categorySelect.innerHTML += `<option value="${category.id}">${category.name}</option>`;
+                            });
+                            updateSubcategories();
+                        });
+                }
+            }
+
+            function updateSubcategories() {
+                const categoryId = categorySelect.value;
+                if (categoryId) {
+                    fetch(`/get_subcategories/?category_id=${categoryId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            subcategorySelect.innerHTML = '<option value="">---------</option>';
+                            data.forEach(subcategory => {
+                                subcategorySelect.innerHTML += `<option value="${subcategory.id}">${subcategory.name}</option>`;
+                            });
+                        });
+                } else {
+                    // If no category is selected, show all subcategories
+                    fetch('/get_all_subcategories/')
+                        .then(response => response.json())
+                        .then(data => {
+                            subcategorySelect.innerHTML = '<option value="">---------</option>';
+                            data.forEach(subcategory => {
+                                subcategorySelect.innerHTML += `<option value="${subcategory.id}">${subcategory.name}</option>`;
+                            });
+                        });
+                }
+            }
+
+            typeSelect.addEventListener('change', updateCategories);
+            categorySelect.addEventListener('change', updateSubcategories);
+
+            // Initialize categories and subcategories
+            updateCategories();
+
+            const form = document.getElementById('cashflowForm');
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+                const type = document.getElementById('id_type');
+                const category = document.getElementById('id_category');
+                const subcategory = document.getElementById('id_subcategory');
+                const amount = document.getElementById('id_amount');
+
+                if (!type.value) {
+                    isValid = false;
+                    type.classList.add('is-invalid');
+                } else {
+                    type.classList.remove('is-invalid');
+                }
+
+                if (!category.value) {
+                    isValid = false;
+                    category.classList.add('is-invalid');
+                } else {
+                    category.classList.remove('is-invalid');
+                }
+
+                if (!subcategory.value) {
+                    isValid = false;
+                    subcategory.classList.add('is-invalid');
+                } else {
+                    subcategory.classList.remove('is-invalid');
+                }
+
+                if (!amount.value || parseFloat(amount.value) <= 0) {
+                    isValid = false;
+                    amount.classList.add('is-invalid');
+                } else {
+                    amount.classList.remove('is-invalid');
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                    alert('Please fill in all required fields correctly.');
+                }
+            });
+        });
+    </script>
+{% endblock %}

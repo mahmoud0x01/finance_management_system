@@ -1,0 +1,27 @@
+{% extends 'cashflow/base.html' %}
+{% load form_tags %}
+
+{% block title %}
+    {% if subcategory %}Edit Subcategory{% else %}Create Subcategory{% endif %}
+{% endblock %}
+
+{% block content %}
+    <h2>{% if subcategory %}Edit Subcategory{% else %}Create Subcategory{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ subcategory.name|default:'' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select class="form-select" id="category" name="category" required>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if subcategory.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'manage_directories' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

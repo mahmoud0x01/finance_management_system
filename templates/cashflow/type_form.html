@@ -1,0 +1,19 @@
+{% extends 'cashflow/base.html' %}
+{% load form_tags %}
+
+{% block title %}
+    {% if type %}Edit Type{% else %}Create Type{% endif %}
+{% endblock %}
+
+{% block content %}
+    <h2>{% if type %}Edit Type{% else %}Create Type{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ type.name|default:'' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'manage_directories' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'cashflow/base.html' %}
+
+{% block title %}Управление справочниками{% endblock %}
+
+{% block content %}
+    <h2>Manage Directories</h2>
+
+    <h3>Statuses</h3>
+    <a href="{% url 'status_create' %}" class="btn btn-primary">Add Status</a>
+    <ul>
+    {% for status in statuses %}
+        <li>
+            {{ status.name }}
+            <a href="{% url 'status_edit' status.id %}">Edit</a>
+            <a href="{% url 'status_delete' status.id %}">Delete</a>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <h3>Types</h3>
+    <a href="{% url 'type_create' %}" class="btn btn-primary">Add Type</a>
+    <ul>
+    {% for type in types %}
+        <li>
+            {{ type.name }}
+            <a href="{% url 'type_edit' type.id %}">Edit</a>
+            <a href="{% url 'type_delete' type.id %}">Delete</a>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <h3>Categories</h3>
+    <a href="{% url 'category_create' %}" class="btn btn-primary">Add Category</a>
+    <ul>
+    {% for category in categories %}
+        <li>
+            {{ category.name }} (Type: {{ category.type.name }})
+            <a href="{% url 'category_edit' category.id %}">Edit</a>
+            <a href="{% url 'category_delete' category.id %}">Delete</a>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <h3>Subcategories</h3>
+    <a href="{% url 'subcategory_create' %}" class="btn btn-primary">Add Subcategory</a>
+    <ul>
+    {% for subcategory in subcategories %}
+        <li>
+            {{ subcategory.name }} (Category: {{ subcategory.category.name }})
+            <a href="{% url 'subcategory_edit' subcategory.id %}">Edit</a>
+            <a href="{% url 'subcategory_delete' subcategory.id %}">Delete</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
